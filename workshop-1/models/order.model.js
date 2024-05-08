@@ -5,7 +5,7 @@ const orderSchema = new Schema({
     productID : {
         type : String
     },
-    amount :
+    order_amount :
     {
         type : Number
     }

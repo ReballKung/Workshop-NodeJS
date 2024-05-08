@@ -4,17 +4,24 @@ var router = express.Router();
 const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
 const orderSchema = require('../models/order.model');
+const jwt = require('jsonwebtoken');
+const { AuthCheck } = require('../middleware/auth.middleware');
 
 // *-------------- เส้นทาง /api -------------------*
 
 //  *--------------- เข้าสู่ระบบ -----------------------*
 // TODO
-router.post('/v1/login' , async function (req , res , next) {
+router.post('/v1/login' , AuthCheck ,async function (req , res , next) {
     try {
         let {username , password} = req.body
+        // const token = jwt.sign({username , password} , '1111')
 
         let checkUsername = await userSchema.findOne({username : username});
-        let checkPassword = await userSchema.findOne({password : md5(password)});
+        let checkPassword = await userSchema.findOne({password : password});
+
+        console.log(checkUsername);
+        // let token = await jwt.sign({} , '1111' , {expiresIn: '1m'})
+
 
         if (!checkUsername || !checkPassword) {
             res.status(500).send({
@@ -25,24 +32,10 @@ router.post('/v1/login' , async function (req , res , next) {
             res.status(200).send({
                 status: 200 ,
                 message: "login success !" , 
-                data : checkUsername
+                data : checkUsername , 
+                token : token
             })
         }
-
-        // let verify = await userSchema.find({username , password})
-
-        // if (verify.length <= 0) {
-        //     res.status(500).json({
-        //         status : 500 ,
-        //         message : "login fail !"
-        //     })
-        // } else {
-        //     res.status(200).json({
-        //         status : 200 ,
-        //         message : "login success !" , 
-        //         data : verify
-        //     })
-        // }
 
     } catch (error) {
         res.status(400).send({
@@ -63,12 +56,12 @@ router.post('/v1/register' , async function (req , res , next) {
         // Insert
         let newUser = new userSchema({
             username : username, 
-            password : md5(password) , 
+            password : password , 
             firstname : firstname, 
             surname : surname, 
             tel : tel , 
             roles : roles
-        })
+        });
 
         // Save to DB
         let save = await newUser.save()
@@ -77,7 +70,7 @@ router.post('/v1/register' , async function (req , res , next) {
         res.status(200).send({
             status : 200 ,
             message : "register user success !" , 
-            data : save
+            data : save 
         })
 
     } catch (error) {
@@ -270,11 +263,11 @@ router.get('/v1/products/:id/orders' , async function (req , res , next) {
 // TODO : ติดเงื่อนไข
 router.post('/v1/products/:id/orders' , async function (req , res , next) {
     try {
-        let {amount} = req.body
+        let {order_amount} = req.body
 
         let newOrders = await orderSchema({
             productID : req.params.id , 
-            amount : amount
+            order_amount : order_amount
         });
 
         // if (amount <= productSchema.find({amount})) {
