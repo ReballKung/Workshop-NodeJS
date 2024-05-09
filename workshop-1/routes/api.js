@@ -251,7 +251,6 @@ router.delete('/v1/products/:id' , AuthCheck , async function (req , res , next)
 router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
     try {
         let order_list = await orderSchema.find({})
-            // .populate("productID")
 
         res.status(200).send({
             status : 200 ,
@@ -271,7 +270,7 @@ router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
 
 
 //  *--------------- แสดงรายการ Order ทั้งหมด ของ Products -----------------------*
-// TODO : ติดการ JOIN Colletion && ดูข้อมูลไม่ได้
+
 router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
         let order_list = await orderSchema.find({productID : req.params.id})
@@ -293,7 +292,7 @@ router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , n
 // *----------------------------------------------------------------------------*
 
 //  *--------------- เพิ่ม Order ใน Products -----------------------*
-// TODO : ติดเงื่อนไข
+
 router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
         let {amount} = req.body
