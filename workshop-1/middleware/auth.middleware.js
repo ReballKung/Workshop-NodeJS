@@ -1,15 +1,20 @@
-const middleware = {
-    AuthCheck: async (req, res , next) => {
-        let token = req.header.authorizarion
-        
-        if (token) {
-            next()
-        } else {
-            res.status(401).send('Unauthoraion')
-        }
-        console.log(req.header.authorizarion);
-        // next()
-    }
-}
+const jwt = require("jsonwebtoken");
 
-module.exports = { ...middleware }
+const middleware = {
+  AuthCheck: async function (req, res, next) {
+    try {
+      const token = req.headers.authorization.split("Bearer ")[1];
+      const decoded = jwt.verify(token , '1111');
+      req.auth = decoded;
+      return next();
+
+    } catch (error) {
+      return res.status(401).send({
+        status: 401,
+        message: "Failed to authenticate token",
+      });
+    }
+  },
+};
+
+module.exports = { ...middleware };

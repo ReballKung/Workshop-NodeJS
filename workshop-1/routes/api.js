@@ -1,5 +1,5 @@
 var express = require('express');
-var md5 = require('md5');
+// var md5 = require('md5');
 var router = express.Router();
 const userSchema = require('../models/user.model');
 const productSchema = require('../models/product.model');
@@ -11,17 +11,11 @@ const { AuthCheck } = require('../middleware/auth.middleware');
 
 //  *--------------- เข้าสู่ระบบ -----------------------*
 // TODO
-router.post('/v1/login' , AuthCheck ,async function (req , res , next) {
+router.post('/v1/login', async function (req , res , next) {
     try {
         let {username , password} = req.body
-        // const token = jwt.sign({username , password} , '1111')
-
         let checkUsername = await userSchema.findOne({username : username});
         let checkPassword = await userSchema.findOne({password : password});
-
-        console.log(checkUsername);
-        // let token = await jwt.sign({} , '1111' , {expiresIn: '1m'})
-
 
         if (!checkUsername || !checkPassword) {
             res.status(500).send({
@@ -29,18 +23,30 @@ router.post('/v1/login' , AuthCheck ,async function (req , res , next) {
                 message : "login fail !"
             })
         } else {
+            // *-------- Token -------------
+            const token = jwt.sign(
+                {
+                    id : checkUsername._id ,
+                    username : checkUsername.username , 
+                    password: checkUsername.password , 
+                    roles : checkUsername.roles
+                } , 
+                '1111' , 
+                {expiresIn: '30m'}
+            );
+            // *-------- Token -------------
             res.status(200).send({
                 status: 200 ,
                 message: "login success !" , 
-                data : checkUsername , 
-                token : token
+                data : checkUsername ,
+                token : token 
             })
         }
 
     } catch (error) {
         res.status(400).send({
             status : 500 ,
-            message : "register user unsuccess !" , 
+            message : "login unsuccess !" , 
             detail : error.toString()
         });
     }
@@ -91,7 +97,7 @@ router.put('/v1/approve/:id' , async function (req , res , next) {
     } catch (error) {
         res.status(400).send({
             status : 400 ,
-            message : "register user unsuccess !" , 
+            message : "approve unsuccess !" , 
             detail : error.toString()
         });
     }
@@ -99,8 +105,9 @@ router.put('/v1/approve/:id' , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Product ทั้งหมด -----------------------*
-router.get('/v1/products' , async function (req , res , next) {
+router.get('/v1/products' , AuthCheck , async function (req , res , next) {
     try {
+        
         let product_list = await productSchema.find({})
 
         res.status(200).send({
@@ -120,7 +127,7 @@ router.get('/v1/products' , async function (req , res , next) {
 // *-----------------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Product ทีละรายการ --------------------*
-router.get('/v1/products/:id' , async function (req , res , next) {
+router.get('/v1/products/:id' , AuthCheck ,  async function (req , res , next) {
     try {
         let product_list = await productSchema.findById(req.params.id)
 
@@ -141,7 +148,7 @@ router.get('/v1/products/:id' , async function (req , res , next) {
 // *-----------------------------------------------------------------*
 
 //  *--------------- เพิ่มรายการ Product  -----------------------*
-router.post('/v1/products' , async function (req , res , next) {
+router.post('/v1/products' , AuthCheck , async function (req , res , next) {
     try {
         let {productName , type , price , amount} = req.body
 
@@ -171,7 +178,7 @@ router.post('/v1/products' , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- แก้ไขรายการ Product  -----------------------*
-router.put('/v1/products/:id' , async function (req , res , next) {
+router.put('/v1/products/:id' , AuthCheck , async function (req , res , next) {
     try {
         let {productName , type, price, amount} = req.body
 
@@ -194,7 +201,7 @@ router.put('/v1/products/:id' , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- ลบรายการ Product  -----------------------*
-router.delete('/v1/products/:id' , async function (req , res , next) {
+router.delete('/v1/products/:id' , AuthCheck , async function (req , res , next) {
     try {
         let deleteProduct = await productSchema.findByIdAndDelete(req.params.id);
 
@@ -216,7 +223,7 @@ router.delete('/v1/products/:id' , async function (req , res , next) {
 
 //  *--------------- แสดงรายการ Order ทั้งหมด -----------------------*
 // TODO : ติดการ JOIN Colletion
-router.get('/v1/orders' , async function (req , res , next) {
+router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
     try {
         let order_list = await orderSchema.find({})
 
@@ -261,7 +268,7 @@ router.get('/v1/products/:id/orders' , async function (req , res , next) {
 
 //  *--------------- เพิ่ม Order ใน Products -----------------------*
 // TODO : ติดเงื่อนไข
-router.post('/v1/products/:id/orders' , async function (req , res , next) {
+router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
         let {order_amount} = req.body
 
