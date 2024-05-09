@@ -1,14 +1,15 @@
 const jwt = require("jsonwebtoken");
 
 const middleware = {
-  AuthCheck: async function (req, res, next) {
+  ReturnToken: async function (req, res, next) {
     try {
       const token = req.headers.authorization.split("Bearer ")[1];
-      // console.log(token);
       const decoded = jwt.verify(token , '1111');
       req.auth = decoded;
+
+      let {id} = decoded
       
-      return next();
+      return res.send(id);
 
     } catch (error) {
       return res.status(401).send({

@@ -20,13 +20,17 @@ const userSchema = new Schema({
     tel : {
         type : String 
     } , 
-    roles : {
-        type : Number , 
+    role : {
+        type : Number ,
         required : true 
+    } ,
+    active : {
+        type : Number 
+        // required : true 
     }
 } , {
-    // // * เวลาสมัครสมาชิก
-    // timestamps: true
+    // * เวลาสมัครสมาชิก
+    timestamps: true
 });
 
 module.exports = mongoose.model('users' , userSchema);
