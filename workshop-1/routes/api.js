@@ -12,23 +12,32 @@ const { AuthCheck } = require('../middleware/auth.middleware');
 //  *--------------- เข้าสู่ระบบ -----------------------*
 router.post('/v1/login', async function (req , res , next) {
     try {
-        let {username , password} = req.body
+        // * ----- Input -----
+        let {username , password} = req.body 
 
+        // * ----- Check username in DB -----
         let checkUsername = await userSchema.findOne({username : username});
+
+        // * ----- Check password in DB -----
         let checkPassword = await bcrypt.compare(password,checkUsername.password);
 
+        // * ----- Check username && password -----
         if (!checkUsername || !checkPassword) {
             res.status(400).send({
                 status : 400 ,
                 message : "username or password is not correct !"
             })
         } 
+
+        // * ----- IF Status Approve is false -----
         if (checkUsername.active == 0) {
             res.status(400).send({
                 status : 400 ,
                 message : "Your user is not approve. Please contact Admin."
             })
         }
+
+        // * ----- IF Status Approve is true -----
         if (checkUsername.active == 1) {
             // *-------- Token -------------
             const token = jwt.sign(
@@ -69,11 +78,13 @@ router.post('/v1/login', async function (req , res , next) {
 //  *--------------- สมัครสมาชิก -----------------------*
 router.post('/v1/register' , async function (req , res , next) {
     try {
-        // Input
+        // * ----- Input -----
         let {username, password, firstname, surname, tel , role} = req.body
+
+        // * ----- Generate Password -----
         let hashPassword = await bcrypt.hash(password, 10);
 
-        // Insert
+        // * ----- Create User -----
         let newUser = new userSchema({
             username : username, 
             password : hashPassword , 
@@ -84,10 +95,10 @@ router.post('/v1/register' , async function (req , res , next) {
             active : 0 // 0: false      1: true
         });
 
-        // Save to DB
+        // * ----- Save To DB -----
         let save = await newUser.save()
 
-        // Show Result
+        // * ----- Show Result -----
         res.status(200).send({
             status : 200 ,
             message : "register user success !" , 
@@ -107,8 +118,10 @@ router.post('/v1/register' , async function (req , res , next) {
 //  *--------------- ตรวจสอบความเป็นสมาชิก -----------------------*
 router.put('/v1/approve/:id' , AuthCheck , async function (req , res , next) {
     try {
+        // * ----- Get Infomation users from jwt -----
         let users = await userSchema.findById(req.auth.id);
 
+        // * ----- Check user roles -----
         if (users.role == 0) {
             res.send({
                 message: "Your user is not use this"
@@ -156,7 +169,7 @@ router.get('/v1/products' , AuthCheck , async function (req , res , next) {
     } catch (error) {
         res.status(400).send({
             status : 400 ,
-            message : "show product unsuccess !" , 
+            message : "Show product unsuccess !" , 
             detail : error.toString()
         });
     }
@@ -332,7 +345,6 @@ router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , 
         let products = await productSchema.findById(req.params.id)
         let users = await userSchema.findById(req.auth.id);
 
-
         if (amount === 0) {
             res.status(400).send({
                 status : 400 , 
@@ -342,7 +354,7 @@ router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , 
         if (amount > products.stock) {
             res.status(400).send({
                 status : 400 , 
-                message: `ของใน stock มีแค่ ${products.stock} เท่านั้น กรุณากรอกใหม่อีกครั้ง`
+                message: `${products.productName} คงเหลือ ${products.stock}  เท่านั้น กรุณากรอกใหม่อีกครั้ง`
             });
         }
 
@@ -361,7 +373,7 @@ router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , 
                 status : 200 ,
                 message : "Add Orders success !" , 
                 data : saveOrders ,
-                stock : products.stock
+                remaining_stock : products.stock
             });
 
         }
