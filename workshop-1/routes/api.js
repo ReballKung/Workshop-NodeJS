@@ -128,7 +128,6 @@ router.put('/v1/approve/:id' , AuthCheck , async function (req , res , next) {
             })
         }
 
-        
     } catch (error) {
         res.status(400).send({
             status : 400 ,
@@ -279,7 +278,6 @@ router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
 
 
 //  *--------------- แสดงรายการ Order ทั้งหมด ของ Products -----------------------*
-
 router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
         let order_list = await orderSchema.find({productID : req.params.id})
@@ -301,11 +299,12 @@ router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , n
 // *----------------------------------------------------------------------------*
 
 //  *--------------- เพิ่ม Order ใน Products -----------------------*
-
 router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
         let {amount} = req.body
         let products = await productSchema.findById(req.params.id)
+        let users = await userSchema.findById(req.auth.id);
+
 
         if (amount === 0) {
             res.send({
@@ -317,11 +316,13 @@ router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , 
                 message: `ของใน stock มีแค่ ${products.stock} เท่านั้น กรุณากรอกใหม่อีกครั้ง`
             });
         }
+
         else {
             await productSchema.findByIdAndUpdate(req.params.id , {stock : (products.stock - amount)} , {new: true} );
             
             let newOrders = await orderSchema({
                 productID : req.params.id ,
+                UserID : users.id , 
                 amount : amount
             });
 
