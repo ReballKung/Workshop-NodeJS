@@ -7,7 +7,6 @@ const productSchema = require('../models/product.model');
 const orderSchema = require('../models/order.model');
 const jwt = require('jsonwebtoken');
 const { AuthCheck } = require('../middleware/auth.middleware');
-const { ReturnToken } = require('../middleware/login.token')
 
 // *-------------- เส้นทาง /api -------------------*
 
@@ -109,17 +108,27 @@ router.post('/v1/register' , async function (req , res , next) {
 
 //  *--------------- ตรวจสอบความเป็นสมาชิก -----------------------*
 // TODO : เงื่อนไข role
-router.put('/v1/approve/:id' , AuthCheck ,async function (req , res , next) {
+router.put('/v1/approve/:id' , AuthCheck , async function (req , res , next) {
     try {
-        let {active} = req.body
+        let users = await userSchema.findById(req.auth.id);
 
-        let updateStatus = await userSchema.findByIdAndUpdate(req.params.id , {active} , {new: true});
+        if (users.role == 0) {
+            res.send({
+                message: "Your user is not use this"
+            })
+        }
+        if (users.role == 1){
+            let {active} = req.body
+            let updateStatus = await userSchema.findByIdAndUpdate(req.params.id , {active} , {new: true});
+    
+            res.status(200).send({
+                status : 200 ,
+                message : "Update Approve success !" , 
+                data : updateStatus
+            })
+        }
 
-        res.status(200).send({
-            status : 200 ,
-            message : "Update Approve success !" , 
-            data : updateStatus
-        })
+        
     } catch (error) {
         res.status(400).send({
             status : 400 ,
