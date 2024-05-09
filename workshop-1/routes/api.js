@@ -1,5 +1,4 @@
 var express = require('express');
-// var md5 = require('md5');
 var bcrypt = require('bcrypt');
 var router = express.Router();
 const userSchema = require('../models/user.model');
@@ -17,7 +16,6 @@ router.post('/v1/login', async function (req , res , next) {
 
         let checkUsername = await userSchema.findOne({username : username});
         let checkPassword = await bcrypt.compare(password,checkUsername.password);
-        // let checkPassword_01 = await userSchema.findOne({password : checkPassword});
 
         if (!checkUsername || !checkPassword) {
             res.status(400).send({
@@ -107,7 +105,6 @@ router.post('/v1/register' , async function (req , res , next) {
 // *-------------------------------------------------*
 
 //  *--------------- ตรวจสอบความเป็นสมาชิก -----------------------*
-// TODO : เงื่อนไข role
 router.put('/v1/approve/:id' , AuthCheck , async function (req , res , next) {
     try {
         let users = await userSchema.findById(req.auth.id);
@@ -143,6 +140,13 @@ router.get('/v1/products' , AuthCheck , async function (req , res , next) {
     try {
         let product_list = await productSchema.find({})
 
+        if (product_list == 0) {
+            res.status(400).send({
+                status : 400 ,
+                message : "Products Empty !"
+            })
+        }
+
         res.status(200).send({
             status : 200 ,
             message : "Show Product success !" , 
@@ -164,6 +168,12 @@ router.get('/v1/products/:id' , AuthCheck ,  async function (req , res , next) {
     try {
         let product_list = await productSchema.findById(req.params.id)
 
+        if (product_list == 0) {
+            res.status(400).send({
+                status : 400 ,
+                message : "Products Empty !"
+            })
+        }
         res.status(200).send({
             status : 200 ,
             message : "Show Product success !" , 
@@ -260,13 +270,20 @@ router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
         let order_list = await orderSchema.find({})
             .populate("productID", "productName")
             .populate("UserID", "firstname")
-            
+        
+        if (order_list.length == 0) {
+            res.status(400).send({
+                status : 400 ,
+                message : "Products Orders Empty !"
+            })
+        }
+
         res.status(200).send({
             status : 200 ,
             message : "Select Orders success !" , 
             data : order_list
         });
-
+       
     } catch (error) {
         res.status(500).send({
             status : 500 ,
@@ -285,6 +302,13 @@ router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , n
             .populate("productID", "productName")
             .populate("UserID", "firstname")
 
+        if (order_list.length == 0) {
+            res.status(400).send({
+                status : 400 ,
+                message : "Products Orders Empty !"
+            })
+        }
+        
         res.status(200).send({
             status : 200 ,
             message : "Select Orders success !" , 
@@ -310,12 +334,14 @@ router.post('/v1/products/:id/orders' , AuthCheck , async function (req , res , 
 
 
         if (amount === 0) {
-            res.send({
+            res.status(400).send({
+                status : 400 , 
                 message: "Please Add Amount"
             });
         }
         if (amount > products.stock) {
-            res.send({
+            res.status(400).send({
+                status : 400 , 
                 message: `ของใน stock มีแค่ ${products.stock} เท่านั้น กรุณากรอกใหม่อีกครั้ง`
             });
         }
