@@ -256,11 +256,12 @@ router.delete('/v1/products/:id' , AuthCheck , async function (req , res , next)
 // *----------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Order ทั้งหมด -----------------------*
-// TODO : ติดการ JOIN Colletion
 router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
     try {
         let order_list = await orderSchema.find({})
-
+            .populate("productID", "productName")
+            .populate("UserID", "firstname")
+            
         res.status(200).send({
             status : 200 ,
             message : "Select Orders success !" , 
@@ -282,7 +283,9 @@ router.get('/v1/orders' , AuthCheck , async function (req , res , next) {
 
 router.get('/v1/products/:id/orders' , AuthCheck , async function (req , res , next) {
     try {
-        let order_list = await orderSchema.find({productID : req.params.id})
+        let order_list = await orderSchema.find({productID : req.params.id})    
+            .populate("productID", "productName")
+            .populate("UserID", "firstname")
 
         res.status(200).send({
             status : 200 ,
