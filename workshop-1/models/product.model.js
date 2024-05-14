@@ -20,8 +20,15 @@ const productSchema = new Schema({
     {
         type : Number , 
         required : true
-    }
-    
+    },
+    detail :
+    {
+        type : String
+    },
+    urlImg :
+    {
+        type : String
+    },
 });
 
 module.exports = mongoose.model('products' , productSchema);
