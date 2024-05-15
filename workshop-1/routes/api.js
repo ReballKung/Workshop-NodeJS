@@ -149,7 +149,7 @@ router.put('/v1/approve/:id' , AuthCheck , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Product ทั้งหมด -----------------------*
-router.get('/v1/products' , AuthCheck , async function (req , res , next) {
+router.get('/v1/products' , async function (req , res , next) {
     try {
         let product_list = await productSchema.find({})
 
@@ -177,7 +177,7 @@ router.get('/v1/products' , AuthCheck , async function (req , res , next) {
 // *-----------------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Product ทีละรายการ --------------------*
-router.get('/v1/products/:id' , AuthCheck ,  async function (req , res , next) {
+router.get('/v1/product/:id' , async function (req , res , next) {
     try {
         let product_list = await productSchema.findById(req.params.id)
 
@@ -204,15 +204,16 @@ router.get('/v1/products/:id' , AuthCheck ,  async function (req , res , next) {
 // *-----------------------------------------------------------------*
 
 //  *--------------- เพิ่มรายการ Product  -----------------------*
-router.post('/v1/products' , AuthCheck , async function (req , res , next) {
+router.post('/v1/products' , async function (req , res , next) {
     try {
-        let {productName , type , price , stock} = req.body
+        let {productName , type , price , stock , urlImg} = req.body
 
         let newProduct = await productSchema({
             productName : productName , 
-            type : type , 
+            type : type,
             price : price , 
-            stock : stock
+            stock : stock,
+            urlImg : urlImg
         });
 
         let saveProduct = await newProduct.save();
@@ -234,11 +235,11 @@ router.post('/v1/products' , AuthCheck , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- แก้ไขรายการ Product  -----------------------*
-router.put('/v1/products/:id' , AuthCheck , async function (req , res , next) {
+router.put('/v1/products/:id'  , async function (req , res , next) {
     try {
-        let {productName , type, price, stock} = req.body
+        let {productName , type, price, stock, urlImg} = req.body
 
-        let updateProduct = await productSchema.findByIdAndUpdate(req.params.id , {productName, type, price, stock} , {new: true});
+        let updateProduct = await productSchema.findByIdAndUpdate(req.params.id , {productName, type, price, stock, urlImg} , {new: true});
 
         res.status(200).send({
             status : 200 ,
@@ -257,7 +258,7 @@ router.put('/v1/products/:id' , AuthCheck , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- ลบรายการ Product  -----------------------*
-router.delete('/v1/products/:id' , AuthCheck , async function (req , res , next) {
+router.delete('/v1/products/:id'  , async function (req , res , next) {
     try {
         let deleteProduct = await productSchema.findByIdAndDelete(req.params.id);
 
