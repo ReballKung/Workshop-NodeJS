@@ -177,7 +177,11 @@ router.get('/v1/products' , async function (req , res , next) {
 // *-----------------------------------------------------------------*
 
 //  *--------------- แสดงรายการ Product ทีละรายการ --------------------*
+<<<<<<< HEAD
 router.get('/v1/product/:id' , async function (req , res , next) {
+=======
+router.get('/v1/products/:id' ,  async function (req , res , next) {
+>>>>>>> f3654c80c23f44bc294df00f040eec8d010874bc
     try {
         let product_list = await productSchema.findById(req.params.id)
 
@@ -206,6 +210,7 @@ router.get('/v1/product/:id' , async function (req , res , next) {
 //  *--------------- เพิ่มรายการ Product  -----------------------*
 router.post('/v1/products' , async function (req , res , next) {
     try {
+<<<<<<< HEAD
         let {productName , type , price , stock , urlImg} = req.body
 
         let newProduct = await productSchema({
@@ -213,6 +218,16 @@ router.post('/v1/products' , async function (req , res , next) {
             type : type,
             price : price , 
             stock : stock,
+=======
+        let {productName , type , detail , price , stock ,urlImg} = req.body
+
+        let newProduct = await productSchema({
+            productName : productName , 
+            type : type , 
+            detail : detail , 
+            price : price , 
+            stock : stock , 
+>>>>>>> f3654c80c23f44bc294df00f040eec8d010874bc
             urlImg : urlImg
         });
 
@@ -235,9 +250,15 @@ router.post('/v1/products' , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- แก้ไขรายการ Product  -----------------------*
+<<<<<<< HEAD
 router.put('/v1/products/:id'  , async function (req , res , next) {
     try {
         let {productName , type, price, stock, urlImg} = req.body
+=======
+router.put('/v1/products/:id' , async function (req , res , next) {
+    try {
+        let {productName, price, stock} = req.body
+>>>>>>> f3654c80c23f44bc294df00f040eec8d010874bc
 
         let updateProduct = await productSchema.findByIdAndUpdate(req.params.id , {productName, type, price, stock, urlImg} , {new: true});
 
@@ -258,7 +279,11 @@ router.put('/v1/products/:id'  , async function (req , res , next) {
 // *----------------------------------------------------------*
 
 //  *--------------- ลบรายการ Product  -----------------------*
+<<<<<<< HEAD
 router.delete('/v1/products/:id'  , async function (req , res , next) {
+=======
+router.delete('/v1/products/:id' , async function (req , res , next) {
+>>>>>>> f3654c80c23f44bc294df00f040eec8d010874bc
     try {
         let deleteProduct = await productSchema.findByIdAndDelete(req.params.id);
 

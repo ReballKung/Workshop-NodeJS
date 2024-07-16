@@ -21,11 +21,22 @@ const productSchema = new Schema({
         type : Number , 
         required : true
     },
+<<<<<<< HEAD
     urlImg :
     {
         type: String
     }
     
+=======
+    detail :
+    {
+        type : String
+    },
+    urlImg :
+    {
+        type : String
+    },
+>>>>>>> f3654c80c23f44bc294df00f040eec8d010874bc
 });
 
 module.exports = mongoose.model('products' , productSchema);
